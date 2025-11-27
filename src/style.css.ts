@@ -89,29 +89,21 @@ const bannerAccount = style({
   marginTop: '6px',
 });
 
-const tags = style({
-  display: 'flex',
-  gap: '8px',
-  alignItems: 'center',
+const sliderContainer = style({
+  width: '212px',
 });
-
-const gridItemBox = style({
-  backgroundColor: '#FFFFFF',
-  borderRadius: '8px',
-  padding: '8px',
+const sliderBox = style({
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
+  gap: '1rem',
+  paddingBottom: '1rem',
+  borderRadius: '12px',
+  backgroundColor: '#e4f0ff',
+  width: '100%',
+  marginTop: '60px',
   textAlign: 'center',
-  height: 64,
-  justifyContent: 'center',
-});
-
-const row = style({
-  display: 'flex',
-  gap: '8px',
   alignItems: 'center',
-  marginTop: '1rem',
+  minHeight: '124px',
 });
 
 export const appSt = {
@@ -124,7 +116,6 @@ export const appSt = {
   boxCalc,
   rowSb,
   bannerAccount,
-  tags,
-  gridItemBox,
-  row,
+  sliderContainer,
+  sliderBox,
 };

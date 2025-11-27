@@ -2,41 +2,40 @@ import { Button } from '@alfalab/core-components/button/cssm';
 import { Collapse } from '@alfalab/core-components/collapse/cssm';
 import { Divider } from '@alfalab/core-components/divider/cssm';
 import { Gap } from '@alfalab/core-components/gap/cssm';
-import { Grid } from '@alfalab/core-components/grid/cssm';
 import { PureCell } from '@alfalab/core-components/pure-cell/cssm';
 import { Slider } from '@alfalab/core-components/slider/cssm';
 import { Steps } from '@alfalab/core-components/steps/cssm';
-import { Tag } from '@alfalab/core-components/tag/cssm';
 import { Typography } from '@alfalab/core-components/typography/cssm';
 import { ChevronDownMIcon } from '@alfalab/icons-glyph/ChevronDownMIcon';
 import { ChevronUpMIcon } from '@alfalab/icons-glyph/ChevronUpMIcon';
 import { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import fileImg from './assets/file.png';
 import hb from './assets/hb.png';
 import houseImg from './assets/house.png';
-import tabplusImg from './assets/tabplus.png';
+import img1 from './assets/img1.png';
+import img3 from './assets/img3.png';
+import img5 from './assets/img5.png';
 import { LS, LSKeys } from './ls';
 import { appSt } from './style.css';
 import { formatWord } from './utils/words';
 
-import { CheckmarkCircleSIcon } from '@alfalab/icons-glyph/CheckmarkCircleSIcon';
-
 const SLIDER_SUM = {
   default: 500_000,
-  min: 1_000,
+  min: 2_000,
   max: 10_000_000,
   step: 1_000,
 };
 
-const PERCENT = 0.1801;
+const PERCENT = 0.12;
 const faqs = [
   {
     question: 'Есть ли комиссия?',
-    answer: ['Комиссия удерживается согласно вашему тарифу брокерского обслуживания.'],
+    answer: ['Нет, вы ничего дополнительно не платите.'],
   },
   {
     question: 'Как выплачивается доход?',
-    answer: ['Доход начисляется на брокерский счет.'],
+    answer: ['Вы получаете доход от роста стоимости пая фонда.'],
   },
   {
     question: 'Есть ли налог?',
@@ -44,73 +43,45 @@ const faqs = [
   },
   {
     question: 'Можно ли вывести деньги до конца срока?',
-    answer: ['Можно. Накопленный доход сохраняется.'],
+    answer: ['Можно в любой момент. Накопления сохраняются'],
   },
 ];
 
 const advantages = [
   {
-    title: 'Высокая доходность',
-    description: 'Зафиксируйте выгодную ставку на срок от 1 до 10 лет',
+    title: 'Активное управление',
+    description: 'Профессиональный управляющий делает всё за вас',
     img: houseImg,
   },
   {
     title: 'Дополнительный доход',
-    description: 'Получайте прибыль от возможного роста стоимости облигации',
+    description: 'Деньги работают автоматически — инвестируются без усилий',
     img: fileImg,
   },
+];
+
+const targets = [
   {
-    title: 'Лёгкий старт',
-    description: 'Начать можно с 1000 ₽',
-    img: tabplusImg,
+    title: 'Получать пассивный доход от накоплений',
+    img: img1,
+  },
+  {
+    title: 'Незаметно накопить на свои цели',
+    img: img5,
+  },
+  {
+    title: 'Сформировать привычку откладывать',
+    img: img3,
   },
 ];
 
-const LINK = 'alfabank://investments/open_investments_account?type=BS';
-
-const tags = [
-  { key: 'ofz', label: 'ОФЗ' },
-  { key: 'banks', label: 'Банки' },
-  { key: 'companies', label: 'Компании' },
-];
-
-const tagsData = {
-  ofz: {
-    title: 'Облигации федерального займа',
-    subtitle: 'Самый надёжный инструмент на рынке',
-    leftTitle: 'Доходность',
-    leftValue: '12-15%',
-    rightTitle: 'Риск',
-    rightValue: 'Минимальный',
-    rows: ['Гарантия государства', 'Высокая ликвидность', 'Для осторожных инвесторов'],
-  },
-
-  banks: {
-    title: 'Облигации крупных банков',
-    subtitle: 'Баланс надёжности и доходности',
-    leftTitle: 'Доходность',
-    leftValue: '15-17%',
-    rightTitle: 'Риск',
-    rightValue: 'Минимальный',
-    rows: ['Крупнейшие банки России', 'Регулярные купоны', 'Оптимальный выбор'],
-  },
-  companies: {
-    title: 'Корпоративные облигации',
-    subtitle: 'Максимальная доходность',
-    leftTitle: 'Доходность',
-    leftValue: '16-18%',
-    rightTitle: 'Риск',
-    rightValue: 'Средний',
-    rows: ['Крупнейшие компании', 'Высокий доход', 'Для опытных инвесторов'],
-  },
-};
+const LINK = 'https://alfa-mobile.alfabank.ru/mobile/goto/invest_open_investbox';
 
 export const App = () => {
   const [loading, setLoading] = useState(false);
   const [sliderSum, setSliderSum] = useState(SLIDER_SUM.default);
-  const [sliderTerm, setSliderTerm] = useState(12);
+  const [sliderTerm, setSliderTerm] = useState(15);
   const [collapsedItems, setCollapsedItem] = useState<string[]>([]);
-  const [selectedTag, setSelectedTag] = useState<'ofz' | 'banks' | 'companies'>('ofz');
 
   useEffect(() => {
     if (!LS.getItem(LSKeys.UserId, null)) {
@@ -118,11 +89,10 @@ export const App = () => {
     }
   }, []);
 
-  const incomeProfitWithSum = Math.floor(((sliderSum * PERCENT) / 12) * sliderTerm);
-  const tagData = tagsData[selectedTag];
+  const incomeProfitWithSum = Math.floor(((sliderSum * PERCENT) / 12) * (sliderTerm / 30));
 
   const submit = () => {
-    window.gtag('event', '6624_card_activate', { var: 'var2' });
+    window.gtag('event', '6624_card_activate', { var: 'var6' });
     setLoading(true);
 
     // sendDataToGA({
@@ -146,10 +116,11 @@ export const App = () => {
       <div className={appSt.container}>
         <div className={appSt.box}>
           <Typography.TitleResponsive tag="h1" view="large" font="system" weight="semibold">
-            Облигации
+            Инвесткопилка
           </Typography.TitleResponsive>
           <Typography.Text view="primary-small" color="secondary">
-            Это «заём» государству или компании: вы даёте деньги под процент и к сроку получаете купоны и возврат номинала
+            Высоконадёжный инструмент, который работает как вклад, но даёт больше дохода за счёт размещения средств в
+            безопасных активах
           </Typography.Text>
 
           <img src={hb} alt="hb" width="100%" height={133} style={{ objectFit: 'contain' }} />
@@ -179,6 +150,19 @@ export const App = () => {
         ))}
 
         <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
+          Доход растёт стабильно
+        </Typography.TitleResponsive>
+
+        <div>
+          <Typography.TitleResponsive color="positive" tag="h5" view="xsmall" font="system" weight="semibold">
+            +11,82%
+          </Typography.TitleResponsive>
+          <Typography.Text view="secondary-medium" color="secondary">
+            с сентября 2022 года
+          </Typography.Text>
+        </div>
+
+        <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
           Сравните
         </Typography.TitleResponsive>
 
@@ -190,31 +174,46 @@ export const App = () => {
             <Typography.Text view="secondary-medium">До 16% годовых</Typography.Text>
             <Divider />
             <Typography.Text style={{ height: 32 }} view="secondary-medium">
-              Выплата в конце срока
+              Фиксированная ставка
             </Typography.Text>
             <Divider />
-            <Typography.Text style={{ height: 48 }} view="secondary-medium">
-              Страхование АСВ
-            </Typography.Text>
+            <Typography.Text view="secondary-medium">Страхование АСВ</Typography.Text>
             <Divider />
-            <Typography.Text view="secondary-medium">Потеря % при досрочном снятии</Typography.Text>
+            <Typography.Text view="secondary-medium">При выводе — потеря накопленного дохода</Typography.Text>
           </div>
           <div className={appSt.boxTableCell({ filled: true })}>
             <Typography.Text view="primary-small" weight="bold" style={{ marginBottom: '12px' }}>
-              Квазидепозит
+              Инвесткопилка
             </Typography.Text>
             <Typography.Text view="secondary-medium">До 18% годовых</Typography.Text>
             <Divider />
             <Typography.Text style={{ height: 32 }} view="secondary-medium">
-              Выплата каждый месяц, неделю
+              Профессиональное управление
             </Typography.Text>
             <Divider />
-            <Typography.Text style={{ height: 48 }} view="secondary-medium">
-              Выплаты гарантированы эмитентом
-            </Typography.Text>
+            <Typography.Text view="secondary-medium">Без страхования</Typography.Text>
             <Divider />
             <Typography.Text view="secondary-medium">Накопленный доход сохраняется</Typography.Text>
           </div>
+        </div>
+
+        <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
+          Для каких целей
+        </Typography.TitleResponsive>
+
+        <div>
+          <Swiper style={{ marginLeft: '0' }} spaceBetween={12} slidesPerView="auto">
+            {targets.map((target, index) => (
+              <SwiperSlide className={appSt.sliderContainer} key={index}>
+                <div className={appSt.sliderBox}>
+                  <img src={target.img} width="100%" height={112} style={{ marginTop: '-60px' }} alt={target.title} />
+                  <Typography.Text view="primary-small" weight="bold" style={{ maxWidth: '180px' }}>
+                    {target.title}
+                  </Typography.Text>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
         <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
@@ -224,18 +223,18 @@ export const App = () => {
         <Steps isVerticalAlign={true} interactive={false} className={appSt.stepStyle}>
           <span>
             <Typography.Text tag="p" defaultMargins={false} view="component-primary">
-              Открываете брокерский счет
+              Пополните счет
             </Typography.Text>
             <Typography.Text view="primary-small" color="secondary">
-              Прям в мобильном приложении банка
+              Деньги автоматически инвестируются
             </Typography.Text>
           </span>
           <span>
             <Typography.Text tag="p" defaultMargins={false} view="component-primary">
-              Покупаете облигации
+              Настройте автополнение
             </Typography.Text>
             <Typography.Text view="primary-small" color="secondary">
-              Подобрали для вас наиболее интересные
+              Так быстрее накопится нужная сумма
             </Typography.Text>
           </span>
           <span>
@@ -243,73 +242,10 @@ export const App = () => {
               Получаете доход
             </Typography.Text>
             <Typography.Text view="primary-small" color="secondary">
-              Проценты начисляются ежедневно на ваш счёт
+              Можно снять в любой момент
             </Typography.Text>
           </span>
         </Steps>
-
-        <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
-          Типы облигаций
-        </Typography.TitleResponsive>
-
-        <div className={appSt.tags}>
-          {tags.map(itemTag => (
-            <Tag
-              size="s"
-              view="outlined"
-              shape="rectangular"
-              checked={selectedTag === itemTag.key}
-              onClick={() => setSelectedTag(itemTag.key as typeof selectedTag)}
-              key={itemTag.key}
-            >
-              {itemTag.label}
-            </Tag>
-          ))}
-        </div>
-
-        <div className={appSt.boxCalc}>
-          <div>
-            <Typography.TitleResponsive tag="h5" view="xsmall" font="system" weight="semibold">
-              {tagData.title}
-            </Typography.TitleResponsive>
-            <Typography.Text view="primary-small" color="secondary">
-              {tagData.subtitle}
-            </Typography.Text>
-          </div>
-
-          <Grid.Row gutter={{ mobile: 8, desktop: 16 }}>
-            <Grid.Col width="6">
-              <div className={appSt.gridItemBox}>
-                <Typography.Text view="secondary-medium" color="secondary">
-                  {tagData.leftTitle}
-                </Typography.Text>
-                <Typography.Text view="primary-small" weight="medium">
-                  {tagData.leftValue}
-                </Typography.Text>
-              </div>
-            </Grid.Col>
-            <Grid.Col width="6">
-              <div className={appSt.gridItemBox}>
-                <Typography.Text view="secondary-medium" color="secondary">
-                  {tagData.rightTitle}
-                </Typography.Text>
-                <Typography.Text view="primary-small" weight="medium">
-                  {tagData.rightValue}
-                </Typography.Text>
-              </div>
-            </Grid.Col>
-          </Grid.Row>
-
-          <div>
-            {tagData.rows.map((row, index) => (
-              <div className={appSt.row} key={index}>
-                <CheckmarkCircleSIcon />
-
-                <Typography.Text view="primary-small">{row}</Typography.Text>
-              </div>
-            ))}
-          </div>
-        </div>
 
         <Typography.TitleResponsive style={{ marginTop: '12px' }} tag="h3" view="small" font="system" weight="semibold">
           Расчитайте доход
@@ -343,15 +279,15 @@ export const App = () => {
                 Срок
               </Typography.Text>
               <Typography.Text view="primary-medium" weight="medium">
-                {formatWord(sliderTerm, ['месяц', 'месяца', 'месяцев'])}
+                {formatWord(sliderTerm, ['день', 'дня', 'дней'])}
               </Typography.Text>
             </div>
             <div style={{ marginTop: '12px' }}>
               <Slider
                 size={4}
                 value={sliderTerm}
-                min={0}
-                max={120}
+                min={1}
+                max={360}
                 step={1}
                 onChange={({ value }) => setSliderTerm(value)}
               />
