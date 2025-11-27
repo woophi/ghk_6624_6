@@ -75,7 +75,8 @@ const targets = [
   },
 ];
 
-const LINK = 'https://alfa-mobile.alfabank.ru/mobile/goto/invest_open_investbox';
+const LINK =
+  'alfabank://multistep-route?version=2&fromModule=FORM&alias=brokerage-account-open-alias&prefilledDataID=investbox';
 
 export const App = () => {
   const [loading, setLoading] = useState(false);
